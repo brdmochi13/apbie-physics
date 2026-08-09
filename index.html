@@ -624,9 +624,7 @@
   .print-ch-label { font-size: 13px; font-weight: 500; }
   .print-ch-sub { font-size: 11px; color: var(--muted); }
 
-  .print-select-row {
-    display: flex; gap: 8px; margin-bottom: 20px;
-  }
+  .print-select-row { display: flex; gap: 8px; margin-bottom: 20px; }
 
   .btn-print-go {
     width: 100%; padding: 14px;
@@ -644,14 +642,15 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  /* ═══ PRINT SHEET — screen preview ═══ */
-  #print-sheet {
+  /* ═══ PRINT PREVIEW OVERLAY (screen only) ═══ */
+  #print-preview-overlay {
     display: none;
     position: fixed; inset: 0; z-index: 600;
-    background: #fff; overflow-y: auto;
+    background: #94a3b8;
+    overflow-y: auto;
     font-family: 'Space Grotesk', sans-serif;
   }
-  #print-sheet.open { display: block; }
+  #print-preview-overlay.open { display: block; }
 
   .ps-topbar {
     position: sticky; top: 0;
@@ -666,87 +665,104 @@
     font-family: inherit; font-size: 13px; font-weight: 600;
     cursor: pointer; transition: opacity 0.2s;
   }
-  .ps-btn.print { background: #38bdf8; color: #0a0e1a; }
-  .ps-btn.close { background: rgba(255,255,255,0.15); color: #fff; }
+  .ps-btn.print-btn { background: #38bdf8; color: #0a0e1a; }
+  .ps-btn.close-btn { background: rgba(255,255,255,0.15); color: #fff; margin-left: 8px; }
   .ps-btn:hover { opacity: 0.85; }
-  .ps-actions { display: flex; gap: 8px; }
 
-  .print-page {
-    width: 210mm; margin: 0 auto;
-    padding: 0;
+  /* ── The actual printable content container ── */
+  #print-content-host {
+    /* On screen: shows as pages in the preview overlay */
+    display: none;
+  }
+  #print-content-host.preview-mode {
+    display: block;
+    padding: 24px;
+  }
+
+  /* A4 page simulation on screen */
+  .print-page-wrapper {
+    width: 210mm;
     background: #fff;
+    margin: 0 auto 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
   }
 
   /* ── Chapter Cover ── */
   .ch-cover {
-    min-height: 120mm;
+    height: 277mm;
     display: flex; flex-direction: column;
     justify-content: center;
-    padding: 16mm 20mm 10mm;
+    padding: 20mm 22mm 16mm;
     position: relative; overflow: hidden;
-    page-break-after: always;
-    break-after: page;
+    background: #0a1628;
   }
   .ch-cover-bg {
     position: absolute; inset: 0;
-    background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 60%, #0d2040 100%);
   }
   .ch-cover-orb {
-    position: absolute; border-radius: 50%; opacity: 0.12;
+    position: absolute; border-radius: 50%; opacity: 0.14;
   }
   .ch-cover-icon {
-    position: relative; font-size: 64px; margin-bottom: 12px; z-index: 1;
+    position: relative; font-size: 72px; margin-bottom: 14px; z-index: 1;
+    filter: drop-shadow(0 0 20px rgba(56,189,248,0.4));
   }
   .ch-cover-num {
     position: relative; z-index: 1;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-    color: #38bdf8; text-transform: uppercase; margin-bottom: 8px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+    color: #38bdf8; text-transform: uppercase; margin-bottom: 10px;
   }
   .ch-cover-title {
     position: relative; z-index: 1;
-    font-size: 34px; font-weight: 700; color: #fff;
-    line-height: 1.2; margin-bottom: 10px;
+    font-size: 40px; font-weight: 700; color: #fff;
+    line-height: 1.15; margin-bottom: 12px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
   }
   .ch-cover-sub {
     position: relative; z-index: 1;
-    font-size: 14px; color: rgba(255,255,255,0.5);
+    font-size: 15px; color: rgba(255,255,255,0.45);
   }
-  .ch-cover-wave {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 30px;
-    background: #fff;
-    clip-path: ellipse(60% 100% at 50% 100%);
-    z-index: 2;
+  .ch-cover-deco {
+    position: absolute; bottom: 32px; right: 44px; z-index: 2; opacity: 0.35;
+  }
+  .ch-cover-stripe {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 6px; z-index: 3;
   }
 
-  /* ── Formula Cards on Print ── */
-  .ch-formulas {
-    padding: 8mm 20mm 16mm;
+  /* ── Formula Cards Page ── */
+  .ch-formulas-page {
+    min-height: 277mm;
+    padding: 12mm 14mm 10mm;
     background: #fff;
-    page-break-after: always;
-    break-after: page;
+    position: relative;
   }
-  .ch-formulas-last {
-    padding: 8mm 20mm 16mm;
-    background: #fff;
+  .ch-formulas-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 8mm;
+    padding-bottom: 4mm;
+    border-bottom: 2px solid #f1f5f9;
   }
+  .ch-formulas-header-icon { font-size: 26px; }
+  .ch-formulas-header-title { font-size: 17px; font-weight: 700; color: #1e293b; }
+  .ch-formulas-header-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 
   .pf-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8mm;
+    gap: 6mm;
   }
 
   .pf-card {
     border-radius: 10px; overflow: hidden;
     border: 1.5px solid #e2e8f0;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    break-inside: avoid;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
   }
-
   .pf-card-header {
-    padding: 8px 12px;
+    padding: 7px 12px;
     display: flex; justify-content: space-between; align-items: center;
   }
   .pf-card-id {
@@ -756,38 +772,33 @@
     background: rgba(56,189,248,0.12); color: #0369a1;
   }
   .pf-jee-badge {
-    font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
     padding: 2px 7px; border-radius: 8px;
-    background: rgba(244,114,182,0.12); color: #be185d;
+    background: rgba(244,114,182,0.14); color: #be185d;
   }
-
-  .pf-card-body { padding: 0 12px 10px; }
+  .pf-card-body { padding: 2px 12px 10px; }
   .pf-name {
     font-size: 12px; font-weight: 700; color: #1e293b;
-    margin-bottom: 6px; line-height: 1.35;
+    margin-bottom: 5px; line-height: 1.35;
   }
-
   .pf-visual {
-    width: 100%; height: 52px;
-    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    width: 100%; height: 56px;
     border-radius: 8px; margin-bottom: 6px;
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden; position: relative;
+    overflow: hidden;
   }
-
   .pf-expr {
     font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 18px; font-weight: 600;
-    color: #0c4a6e;
-    text-align: center; padding: 0 6px;
-    line-height: 1.3;
+    font-size: 16px; font-weight: 600; color: #0c4a6e;
+    background: #f0f9ff; border-left: 3px solid #38bdf8;
+    padding: 6px 10px; border-radius: 0 6px 6px 0;
+    margin-bottom: 6px; line-height: 1.4;
+    word-break: break-word;
   }
-
   .pf-notes {
     font-size: 9.5px; color: #475569; line-height: 1.55;
-    border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: 4px;
+    border-top: 1px solid #f1f5f9; padding-top: 5px;
   }
-
   .pf-tags {
     display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px;
   }
@@ -795,34 +806,68 @@
     font-size: 8px; padding: 1px 6px; border-radius: 6px;
     background: #f1f5f9; color: #64748b; font-weight: 600;
   }
+  .vis-svg { width: 100%; height: 56px; }
 
-  /* ── SVG Visuals ── */
-  .vis-svg { width: 100%; height: 52px; }
-
-  /* ── Page footer ── */
-  .pf-footer {
-    font-size: 8px; color: #94a3b8; text-align: center;
-    padding: 4mm 0; border-top: 1px solid #f1f5f9;
+  .ch-page-footer {
+    position: absolute; bottom: 6mm; left: 14mm; right: 14mm;
+    font-size: 8px; color: #cbd5e1; text-align: center;
+    border-top: 1px solid #f1f5f9; padding-top: 4px;
   }
 
-  /* ── Back cover ── */
+  /* ── Back Cover ── */
   .back-cover {
-    min-height: 100mm; display: flex; flex-direction: column;
+    height: 277mm;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0a1628, #1e3a5f);
+    background: linear-gradient(160deg, #0a1628, #1e3a5f, #0d2040);
     color: #fff; text-align: center; padding: 20mm;
-    page-break-before: always; break-before: page;
+    position: relative; overflow: hidden;
   }
-  .back-cover h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-  .back-cover p { font-size: 13px; opacity: 0.6; }
+  .back-cover h3 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .back-cover p { font-size: 13px; opacity: 0.55; line-height: 1.6; }
+  .back-cover-quote {
+    margin-top: 32px; padding: 16px 24px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px; font-size: 12px;
+    color: rgba(255,255,255,0.5); line-height: 1.6;
+    max-width: 340px;
+  }
 
-  /* ═══ PRINT MEDIA ═══ */
+  /* ═══ PRINT MEDIA — the real deal ═══ */
   @media print {
-    #print-sheet .ps-topbar { display: none !important; }
-    .print-page { width: 100%; margin: 0; }
-    .ch-cover { min-height: 100vh; }
-    body > *:not(#print-sheet) { display: none !important; }
-    #print-sheet { position: static; overflow: visible; }
+    /* Hide everything except the printable host */
+    body > *:not(#print-content-host) { display: none !important; }
+    #print-preview-overlay { display: none !important; }
+    .ps-topbar { display: none !important; }
+
+    /* Make the host visible and full-width */
+    #print-content-host {
+      display: block !important;
+      position: static !important;
+      overflow: visible !important;
+      padding: 0 !important;
+    }
+
+    /* Each wrapper is one A4 page */
+    .print-page-wrapper {
+      width: 100% !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      page-break-after: always;
+      break-after: page;
+    }
+    .print-page-wrapper:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    /* Covers fill the page */
+    .ch-cover { height: 100vh; }
+    .back-cover { height: 100vh; }
+
+    /* Formula pages flow naturally */
+    .ch-formulas-page { min-height: auto; }
   }
 
 </style>
@@ -1021,28 +1066,31 @@
     <div class="print-modal">
       <button class="btn-print-close" onclick="closePrintModal()">✕</button>
       <h2>🖨️ Print Study Sheets</h2>
-      <p>Select chapters to include. Each chapter gets a beautiful cover + formula cards with visual aids.</p>
+      <p>Select chapters to include. Each chapter gets a cover page + formula cards with diagrams. Use "Print / Save PDF" to export.</p>
       <div class="print-select-row">
         <button class="filter-btn" onclick="selectAllChapters()">Select All</button>
         <button class="filter-btn" onclick="selectNoneChapters()">Clear</button>
         <button class="filter-btn" onclick="selectJEEChapters()">⭐ JEE Key Only</button>
       </div>
       <div class="print-ch-grid" id="print-ch-grid"></div>
-      <button class="btn-print-go" onclick="generatePrintSheet()">Generate Print Sheet →</button>
+      <button class="btn-print-go" onclick="generatePrintSheet()">Generate Preview →</button>
     </div>
   </div>
 
-  <!-- ══ PRINT SHEET ══ -->
-  <div id="print-sheet">
+  <!-- ══ PRINT PREVIEW OVERLAY (screen) ══ -->
+  <div id="print-preview-overlay">
     <div class="ps-topbar">
-      <span>⚛️ APBIE Physics — Study Sheet</span>
-      <div class="ps-actions">
-        <button class="ps-btn print" onclick="window.print()">🖨️ Print / Save PDF</button>
-        <button class="ps-btn close" onclick="closePrintSheet()">✕ Close</button>
+      <span>⚛️ APBIE Physics — Print Preview</span>
+      <div>
+        <button class="ps-btn print-btn" onclick="doPrint()">🖨️ Print / Save PDF</button>
+        <button class="ps-btn close-btn" onclick="closePrintSheet()">✕ Close Preview</button>
       </div>
     </div>
-    <div class="print-page" id="print-page-content"></div>
+    <div id="print-content-host" class="preview-mode"></div>
   </div>
+
+  <!-- ══ HIDDEN PRINT HOST (used when printing directly) ══ -->
+  <!-- Note: #print-content-host is moved here for @media print to find it -->
 
 </div><!-- end app -->
 
@@ -1746,60 +1794,76 @@ function showToast(msg) {
 //  PRINT SYSTEM
 // ══════════════════════════════════════════════════════
 
-// Chapter colour themes for print covers
 const CH_THEMES = [
-  { bg: 'linear-gradient(135deg,#0a1628,#1e3a5f)', orb1:'#38bdf8', orb2:'#818cf8', accent:'#38bdf8' },
-  { bg: 'linear-gradient(135deg,#0f1a10,#1a3020)', orb1:'#34d399', orb2:'#38bdf8', accent:'#34d399' },
-  { bg: 'linear-gradient(135deg,#1a0a2e,#2d1b69)', orb1:'#818cf8', orb2:'#f472b6', accent:'#818cf8' },
-  { bg: 'linear-gradient(135deg,#1a0f00,#3d2600)', orb1:'#fbbf24', orb2:'#f97316', accent:'#fbbf24' },
-  { bg: 'linear-gradient(135deg,#0d1a2e,#0c2d4a)', orb1:'#38bdf8', orb2:'#34d399', accent:'#38bdf8' },
-  { bg: 'linear-gradient(135deg,#1a0a0a,#3d1515)', orb1:'#f87171', orb2:'#fbbf24', accent:'#f87171' },
-  { bg: 'linear-gradient(135deg,#0a0f1a,#0d1f3c)', orb1:'#a78bfa', orb2:'#38bdf8', accent:'#a78bfa' },
-  { bg: 'linear-gradient(135deg,#0f1a10,#1a3a1a)', orb1:'#4ade80', orb2:'#34d399', accent:'#4ade80' },
-  { bg: 'linear-gradient(135deg,#0a1628,#0d2545)', orb1:'#38bdf8', orb2:'#a78bfa', accent:'#38bdf8' },
-  { bg: 'linear-gradient(135deg,#1a0f00,#2d1f00)', orb1:'#fb923c', orb2:'#fbbf24', accent:'#fb923c' },
-  { bg: 'linear-gradient(135deg,#1a0a0a,#2d0d0d)', orb1:'#f87171', orb2:'#fb923c', accent:'#f87171' },
-  { bg: 'linear-gradient(135deg,#0a1a0f,#0d2d1a)', orb1:'#34d399', orb2:'#4ade80', accent:'#34d399' },
-  { bg: 'linear-gradient(135deg,#0a0f1a,#1a1440)', orb1:'#818cf8', orb2:'#a78bfa', accent:'#818cf8' },
-  { bg: 'linear-gradient(135deg,#001a1a,#003333)', orb1:'#2dd4bf', orb2:'#38bdf8', accent:'#2dd4bf' },
+  { bg:'linear-gradient(135deg,#0a1628,#1e3a5f)', orb1:'#38bdf8', orb2:'#818cf8', accent:'#38bdf8', stripe:'linear-gradient(90deg,#38bdf8,#818cf8)' },
+  { bg:'linear-gradient(135deg,#0f1a10,#1a3a20)', orb1:'#34d399', orb2:'#38bdf8', accent:'#34d399', stripe:'linear-gradient(90deg,#34d399,#38bdf8)' },
+  { bg:'linear-gradient(135deg,#1a0a2e,#2d1b69)', orb1:'#818cf8', orb2:'#f472b6', accent:'#818cf8', stripe:'linear-gradient(90deg,#818cf8,#f472b6)' },
+  { bg:'linear-gradient(135deg,#1a0f00,#3d2600)', orb1:'#fbbf24', orb2:'#f97316', accent:'#fbbf24', stripe:'linear-gradient(90deg,#fbbf24,#f97316)' },
+  { bg:'linear-gradient(135deg,#0d1a2e,#0c2d4a)', orb1:'#38bdf8', orb2:'#34d399', accent:'#38bdf8', stripe:'linear-gradient(90deg,#38bdf8,#34d399)' },
+  { bg:'linear-gradient(135deg,#1a0a0a,#3d1515)', orb1:'#f87171', orb2:'#fbbf24', accent:'#f87171', stripe:'linear-gradient(90deg,#f87171,#fbbf24)' },
+  { bg:'linear-gradient(135deg,#0a0f1a,#0d1f3c)', orb1:'#a78bfa', orb2:'#38bdf8', accent:'#a78bfa', stripe:'linear-gradient(90deg,#a78bfa,#38bdf8)' },
+  { bg:'linear-gradient(135deg,#0f1a10,#1a3a1a)', orb1:'#4ade80', orb2:'#34d399', accent:'#4ade80', stripe:'linear-gradient(90deg,#4ade80,#34d399)' },
+  { bg:'linear-gradient(135deg,#0a1628,#0d2545)', orb1:'#38bdf8', orb2:'#a78bfa', accent:'#38bdf8', stripe:'linear-gradient(90deg,#38bdf8,#a78bfa)' },
+  { bg:'linear-gradient(135deg,#1a0f00,#2d1f00)', orb1:'#fb923c', orb2:'#fbbf24', accent:'#fb923c', stripe:'linear-gradient(90deg,#fb923c,#fbbf24)' },
+  { bg:'linear-gradient(135deg,#1a0a0a,#2d0d0d)', orb1:'#f87171', orb2:'#fb923c', accent:'#f87171', stripe:'linear-gradient(90deg,#f87171,#fb923c)' },
+  { bg:'linear-gradient(135deg,#0a1a0f,#0d2d1a)', orb1:'#34d399', orb2:'#4ade80', accent:'#34d399', stripe:'linear-gradient(90deg,#34d399,#4ade80)' },
+  { bg:'linear-gradient(135deg,#0a0f1a,#1a1440)', orb1:'#818cf8', orb2:'#a78bfa', accent:'#818cf8', stripe:'linear-gradient(90deg,#818cf8,#a78bfa)' },
+  { bg:'linear-gradient(135deg,#001a1a,#003333)', orb1:'#2dd4bf', orb2:'#38bdf8', accent:'#2dd4bf', stripe:'linear-gradient(90deg,#2dd4bf,#38bdf8)' },
 ];
 
-// SVG visuals per formula (keyed by F-ID)
+// Custom SVG visuals per formula
 const FORMULA_VISUALS = {
-  F005: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0f9ff"/><line x1="20" y1="40" x2="240" y2="40" stroke="#93c5fd" stroke-width="1.5"/><circle cx="20" cy="40" r="4" fill="#0ea5e9"/><path d="M20 40 Q80 10 140 25 Q200 40 240 15" stroke="#0369a1" stroke-width="2" fill="none"/><circle cx="240" cy="15" r="4" fill="#7c3aed"/><text x="130" y="14" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono">v²=u²+2as</text><text x="20" y="50" font-size="8" fill="#94a3b8">u</text><text x="238" y="12" font-size="8" fill="#94a3b8">v</text></svg>`,
-  F007: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0fdf4"/><rect x="20" y="8" width="10" height="36" fill="#86efac" rx="2"/><circle cx="25" cy="8" r="6" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/><path d="M25 14 L25 44" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="3,2"/><path d="M60 8 L60 44" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/><text x="60" y="50" text-anchor="middle" font-size="8" fill="#94a3b8">t=√(2h/g)</text><path d="M30 20 L55 20" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arr)"/><text x="42" y="18" font-size="8" fill="#ef4444">g↓</text><text x="130" y="28" text-anchor="middle" font-size="10" fill="#166534" font-family="Georgia">v = √(2gh)</text></svg>`,
-  F011: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#fefce8"/><path d="M20 45 Q85 5 150 45 Q215 5 250 15" stroke="#0369a1" stroke-width="2" fill="none" stroke-dasharray="none"/><line x1="20" y1="45" x2="150" y2="45" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/><line x1="85" y1="45" x2="85" y2="5" stroke="#e11d48" stroke-width="1" stroke-dasharray="2,2"/><text x="85" y="4" text-anchor="middle" font-size="8" fill="#e11d48">H</text><text x="85" y="50" text-anchor="middle" font-size="8" fill="#64748b">R/2</text><text x="150" y="50" text-anchor="middle" font-size="8" fill="#94a3b8">R</text><text x="20" y="44" font-size="8" fill="#0369a1">θ</text></svg>`,
-  F013: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0f9ff"/><circle cx="130" cy="26" r="20" stroke="#93c5fd" stroke-width="1.5" fill="none"/><circle cx="130" cy="26" r="3" fill="#0ea5e9"/><circle cx="150" cy="26" r="5" fill="#f472b6"/><path d="M130 26 L150 26" stroke="#64748b" stroke-width="1" stroke-dasharray="2,2"/><text x="140" y="22" font-size="8" fill="#64748b">R</text><path d="M150 14 Q158 20 154 28" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#a)"/><text x="160" y="20" font-size="8" fill="#ef4444">v</text><path d="M130 6 Q140 0 150 6" stroke="#7c3aed" stroke-width="1.5" fill="none"/><text x="190" y="28" font-size="9" fill="#0c4a6e" font-family="Georgia">a=v²/R</text></svg>`,
-  F014: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#fdf4ff"/><rect x="80" y="20" width="40" height="28" fill="#e9d5ff" rx="4" stroke="#a855f7" stroke-width="1.5"/><text x="100" y="38" text-anchor="middle" font-size="10" fill="#6b21a8" font-family="Georgia">m</text><path d="M120 34 L155 34" stroke="#ef4444" stroke-width="2.5" marker-end="url(#b)"/><text x="165" y="38" font-size="10" fill="#ef4444" font-family="Georgia">F</text><path d="M135 28 L160 22" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#c)"/><text x="163" y="20" font-size="9" fill="#0369a1" font-family="Georgia">a</text><text x="130" y="14" text-anchor="middle" font-size="9" fill="#6b21a8">F = ma</text></svg>`,
-  F019: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0fdf4"/><circle cx="50" cy="30" r="14" fill="#bbf7d0" stroke="#22c55e" stroke-width="1.5"/><text x="50" y="34" text-anchor="middle" font-size="9" fill="#166534" font-family="Georgia">m</text><path d="M64 30 L95 30" stroke="#0369a1" stroke-width="2" marker-end="url(#d)"/><text x="80" y="25" font-size="9" fill="#0369a1">v</text><rect x="105" y="10" width="50" height="20" fill="#bfdbfe" rx="3" stroke="#3b82f6" stroke-width="1"/><text x="130" y="24" text-anchor="middle" font-size="9" fill="#1e3a8a">½mv²</text><text x="162" y="24" font-size="10" fill="#64748b">=</text><rect x="170" y="10" width="60" height="20" fill="#fde68a" rx="3" stroke="#f59e0b" stroke-width="1"/><text x="200" y="24" text-anchor="middle" font-size="9" fill="#78350f">p²/2m</text></svg>`,
-  F021: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#fff7ed"/><circle cx="50" cy="26" r="12" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/><text x="50" y="30" text-anchor="middle" font-size="9" fill="#7c2d12">m₁</text><path d="M62 26 L88 26" stroke="#ef4444" stroke-width="2" marker-end="url(#e)"/><text x="75" y="22" font-size="8" fill="#ef4444">u₁</text><circle cx="105" cy="26" r="10" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/><text x="105" y="30" text-anchor="middle" font-size="9" fill="#4c1d95">m₂</text><text x="130" y="28" text-anchor="middle" font-size="14" fill="#94a3b8">→</text><circle cx="165" cy="26" r="12" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/><path d="M177 26 L195 26" stroke="#16a34a" stroke-width="2" marker-end="url(#f)"/><text x="186" y="22" font-size="8" fill="#16a34a">v₁</text><circle cx="210" cy="26" r="10" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/><path d="M220 26 L240 26" stroke="#2563eb" stroke-width="2" marker-end="url(#g)"/><text x="230" y="22" font-size="8" fill="#2563eb">v₂</text></svg>`,
-  F026: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f5f3ff"/><circle cx="50" cy="26" r="18" stroke="#a855f7" stroke-width="2" fill="none"/><circle cx="50" cy="26" r="2" fill="#a855f7"/><text x="50" y="50" text-anchor="middle" font-size="8" fill="#7c3aed">Ring: MR²</text><ellipse cx="110" cy="26" rx="18" ry="6" stroke="#0369a1" stroke-width="2" fill="#bfdbfe" fill-opacity="0.4"/><ellipse cx="110" cy="26" rx="18" ry="18" stroke="#93c5fd" stroke-width="1.5" fill="none"/><text x="110" y="50" text-anchor="middle" font-size="8" fill="#0369a1">Disc: MR²/2</text><line x1="160" y1="10" x2="160" y2="42" stroke="#16a34a" stroke-width="2"/><line x1="145" y1="26" x2="175" y2="26" stroke="#16a34a" stroke-width="1" stroke-dasharray="3,2"/><text x="160" y="50" text-anchor="middle" font-size="8" fill="#166534">Rod: ML²/12</text><circle cx="230" cy="26" r="16" stroke="#dc2626" stroke-width="2" fill="#fecaca" fill-opacity="0.3"/><circle cx="230" cy="26" r="8" stroke="#dc2626" stroke-width="1" fill="none" stroke-dasharray="3,2"/><text x="230" y="50" text-anchor="middle" font-size="8" fill="#dc2626">Sphere:⅖MR²</text></svg>`,
-  F029: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0f9ff"/><circle cx="80" cy="28" r="16" fill="#bfdbfe" stroke="#0369a1" stroke-width="2"/><text x="80" y="32" text-anchor="middle" font-size="8" fill="#1e3a8a">Earth</text><circle cx="80" cy="28" r="32" stroke="#94a3b8" stroke-width="1" fill="none" stroke-dasharray="3,2"/><circle cx="112" cy="28" r="4" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/><path d="M112 20 Q120 12 112 14" stroke="#7c3aed" stroke-width="1.5" fill="none" marker-end="url(#h)"/><text x="125" y="14" font-size="8" fill="#7c3aed">Vₒ</text><path d="M80 0 L80 -5" stroke="#ef4444" stroke-width="1.5" marker-end="url(#i)"/><text x="165" y="24" font-size="9" fill="#0c4a6e">Vₑ=√(2gR)</text><text x="165" y="36" font-size="9" fill="#7c3aed">Vₒ=√(gR)</text><text x="165" y="46" font-size="8" fill="#94a3b8">Vₑ=√2·Vₒ</text></svg>`,
-  F035: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0f9ff"/><path d="M20 40 L80 40 L80 20 L180 20 L180 40 L240 40" stroke="#0369a1" stroke-width="2" fill="none"/><path d="M80 40 L80 20" stroke="#0369a1" stroke-width="1.5"/><path d="M180 20 L180 40" stroke="#0369a1" stroke-width="1.5"/><text x="50" y="36" text-anchor="middle" font-size="8" fill="#0369a1">A₁</text><text x="130" y="16" text-anchor="middle" font-size="8" fill="#0369a1">A₂ (narrow)</text><path d="M50 38 L68 38" stroke="#ef4444" stroke-width="1.5" marker-end="url(#j)"/><text x="58" y="32" font-size="8" fill="#ef4444">v₁</text><path d="M185 30 L210 30" stroke="#16a34a" stroke-width="2" marker-end="url(#k)"/><text x="198" y="26" font-size="8" fill="#16a34a">v₂↑</text><text x="130" y="50" text-anchor="middle" font-size="8" fill="#64748b">P+½ρv²+ρgh=const</text></svg>`,
-  F046: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0fdf4"/><rect x="20" y="10" width="80" height="34" fill="none" stroke="#22c55e" stroke-width="1.5" rx="4"/><text x="60" y="28" text-anchor="middle" font-size="9" fill="#166534">PV = μRT</text><text x="60" y="40" text-anchor="middle" font-size="8" fill="#64748b">Ideal Gas</text><circle cx="160" cy="26" r="3" fill="#f97316"/><circle cx="175" cy="20" r="3" fill="#f97316"/><circle cx="185" cy="32" r="3" fill="#f97316"/><circle cx="200" cy="18" r="3" fill="#f97316"/><circle cx="145" cy="30" r="3" fill="#f97316"/><circle cx="215" cy="28" r="3" fill="#f97316"/><circle cx="168" cy="40" r="3" fill="#f97316"/><circle cx="195" cy="38" r="3" fill="#f97316"/><text x="180" y="10" text-anchor="middle" font-size="8" fill="#94a3b8">molecules</text><path d="M160 26 L148 18" stroke="#94a3b8" stroke-width="1" marker-end="url(#l)"/><path d="M175 20 L182 10" stroke="#94a3b8" stroke-width="1" marker-end="url(#m)"/></svg>`,
-  F047: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#fff7ed"/><path d="M20 46 Q30 46 35 10 Q40 46 50 20 Q55 46 65 8 Q70 46 80 18 Q85 46 95 12 Q100 46 110 20 Q115 46 125 30" stroke="#f97316" stroke-width="1.5" fill="none"/><text x="20" y="8" font-size="8" fill="#f97316">Maxwell Distribution</text><line x1="85" y1="0" x2="85" y2="46" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2"/><line x1="100" y1="0" x2="100" y2="46" stroke="#7c3aed" stroke-width="1" stroke-dasharray="2,2"/><line x1="115" y1="0" x2="115" y2="46" stroke="#0369a1" stroke-width="1" stroke-dasharray="2,2"/><text x="85" y="4" text-anchor="middle" font-size="7" fill="#ef4444">vₘₚ</text><text x="100" y="4" text-anchor="middle" font-size="7" fill="#64748b">vₐᵥg</text><text x="115" y="4" text-anchor="middle" font-size="7" fill="#0369a1">vᵣₘₛ</text></svg>`,
-  F050: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#fdf4ff"/><path d="M20 26 Q45 6 70 26 Q95 46 120 26 Q145 6 170 26 Q195 46 220 26 Q235 16 245 26" stroke="#7c3aed" stroke-width="2" fill="none"/><line x1="20" y1="26" x2="245" y2="26" stroke="#e2e8f0" stroke-width="1"/><line x1="70" y1="26" x2="70" y2="6" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2"/><line x1="120" y1="26" x2="120" y2="6" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/><text x="70" y="4" text-anchor="middle" font-size="8" fill="#ef4444">+A</text><text x="45" y="46" text-anchor="middle" font-size="8" fill="#64748b">T/2</text><text x="200" y="18" font-size="9" fill="#4c1d95">x=Acosωt</text></svg>`,
-  F051: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f5f3ff"/><path d="M20 42 Q65 6 110 42 Q155 42 200 6" stroke="#22c55e" stroke-width="1.5" fill="none"/><path d="M20 6 Q65 6 110 42 Q155 6 200 6" stroke="#f97316" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/><line x1="20" y1="24" x2="200" y2="24" stroke="#e2e8f0" stroke-width="1"/><text x="215" y="42" font-size="9" fill="#166534">KE</text><text x="215" y="12" font-size="9" fill="#c2410c">PE</text><text x="110" y="15" text-anchor="middle" font-size="8" fill="#64748b">Total E = const</text></svg>`,
-  F052: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0f9ff"/><line x1="60" y1="8" x2="60" y2="16" stroke="#0369a1" stroke-width="2"/><path d="M60 16 Q75 42 60 44" stroke="#0369a1" stroke-width="1.5" fill="none"/><circle cx="60" cy="44" r="5" fill="#f97316" stroke="#ea580c" stroke-width="1.5"/><text x="80" y="44" font-size="8" fill="#64748b">T=2π√(l/g)</text><text x="60" y="12" font-size="7" fill="#94a3b8">pivot</text><rect x="140" y="20" width="30" height="14" fill="#bfdbfe" rx="3" stroke="#0369a1" stroke-width="1.5"/><line x1="155" y1="8" x2="155" y2="20" stroke="#64748b" stroke-width="2"/><line x1="140" y1="14" x2="130" y2="14" stroke="#94a3b8" stroke-width="1"/><text x="120" y="12" font-size="7" fill="#94a3b8">⫟</text><text x="155" y="44" text-anchor="middle" font-size="8" fill="#0369a1">T=2π√(m/k)</text></svg>`,
-  F053: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#f0f9ff"/><path d="M10 26 Q27 8 44 26 Q61 44 78 26 Q95 8 112 26 Q129 44 146 26 Q163 8 180 26 Q197 44 214 26 Q231 8 248 26" stroke="#0369a1" stroke-width="2" fill="none"/><line x1="10" y1="26" x2="250" y2="26" stroke="#e2e8f0" stroke-width="1"/><path d="M44 26 L78 26" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2"/><text x="61" y="22" text-anchor="middle" font-size="8" fill="#ef4444">λ</text><path d="M245 26 L252 20" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#n)"/><text x="250" y="18" font-size="8" fill="#7c3aed">v</text></svg>`,
-  F055: `<svg class="vis-svg" viewBox="0 0 260 52"><rect width="260" height="52" fill="#fff7ed"/><path d="M10 26 Q36 6 62 26 Q88 46 114 26 Q140 6 166 26 Q192 46 218 26 Q236 14 244 26" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/><path d="M10 26 Q36 46 62 26 Q88 6 114 26 Q140 46 166 26 Q192 6 218 26 Q236 38 244 26" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/><path d="M10 26 L244 26" stroke="#f97316" stroke-width="2.5"/><circle cx="62" cy="26" r="5" fill="#f97316"/><circle cx="114" cy="26" r="5" fill="#f97316"/><circle cx="166" cy="26" r="5" fill="#f97316"/><circle cx="218" cy="26" r="5" fill="#f97316"/><text x="62" y="46" text-anchor="middle" font-size="8" fill="#94a3b8">N</text><text x="114" y="46" text-anchor="middle" font-size="8" fill="#94a3b8">N</text><text x="88" y="8" text-anchor="middle" font-size="8" fill="#f97316">AN</text><text x="140" y="8" text-anchor="middle" font-size="8" fill="#f97316">AN</text></svg>`,
+  F005: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0f9ff" rx="8"/><line x1="16" y1="44" x2="244" y2="44" stroke="#bae6fd" stroke-width="1.5"/><circle cx="16" cy="44" r="5" fill="#0ea5e9"/><path d="M16 44 Q80 12 144 28 Q200 40 244 14" stroke="#0369a1" stroke-width="2.5" fill="none"/><circle cx="244" cy="14" r="5" fill="#7c3aed"/><text x="130" y="11" text-anchor="middle" font-size="9" fill="#64748b" font-family="monospace">v = u + at</text><text x="14" y="54" font-size="8" fill="#0ea5e9" font-family="monospace">u</text><text x="242" y="12" font-size="8" fill="#7c3aed" font-family="monospace">v</text><text x="130" y="50" text-anchor="middle" font-size="8" fill="#94a3b8">uniform acceleration →</text></svg>`,
+  F007: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0fdf4" rx="8"/><rect x="20" y="6" width="8" height="42" fill="#86efac" rx="2"/><circle cx="24" cy="6" r="7" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/><path d="M24 13 L24 46" stroke="#22c55e" stroke-width="2" stroke-dasharray="3,2"/><text x="40" y="24" font-size="9" fill="#ef4444">↓ g = 9.8 m/s²</text><text x="130" y="22" text-anchor="middle" font-size="12" fill="#166534" font-family="Georgia,serif" font-weight="600">v = √(2gh)</text><text x="130" y="38" text-anchor="middle" font-size="11" fill="#0369a1" font-family="Georgia,serif">t = √(2h/g)</text><text x="24" y="54" text-anchor="middle" font-size="8" fill="#94a3b8">free fall</text></svg>`,
+  F008: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fefce8" rx="8"/><path d="M20 50 Q80 8 140 50" stroke="#0369a1" stroke-width="2.5" fill="none"/><line x1="20" y1="50" x2="140" y2="50" stroke="#bae6fd" stroke-width="1" stroke-dasharray="2,2"/><line x1="80" y1="50" x2="80" y2="8" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/><text x="80" y="6" text-anchor="middle" font-size="9" fill="#ef4444">H=u²/2g</text><path d="M20 50 L28 36" stroke="#16a34a" stroke-width="2" marker-end="url(#arr1)"/><text x="18" y="32" font-size="9" fill="#16a34a" font-family="Georgia,serif">u</text><text x="185" y="22" font-size="10" fill="#1e3a8a" font-family="Georgia,serif">T = 2u/g</text><text x="185" y="36" font-size="10" fill="#ef4444" font-family="Georgia,serif">H = u²/2g</text></svg>`,
+  F010: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fdf4ff" rx="8"/><defs><marker id="arr1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0369a1"/></marker></defs><line x1="60" y1="44" x2="130" y2="20" stroke="#0369a1" stroke-width="2" marker-end="url(#arr1)"/><line x1="60" y1="44" x2="170" y2="44" stroke="#7c3aed" stroke-width="2" marker-end="url(#arr1)"/><path d="M60 44 L178 18" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="none" marker-end="url(#arr1)"/><text x="128" y="16" font-size="9" fill="#0369a1">B</text><text x="172" y="48" font-size="9" fill="#7c3aed">A</text><text x="180" y="16" font-size="9" fill="#ef4444">R</text><text x="68" y="54" font-size="8" fill="#64748b">θ</text><text x="140" y="54" font-size="9" fill="#0c4a6e" font-family="Georgia,serif">R=√(A²+B²+2AB cosθ)</text></svg>`,
+  F011: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fefce8" rx="8"/><path d="M16 52 Q76 8 136 52" stroke="#0369a1" stroke-width="2.5" fill="none"/><line x1="16" y1="52" x2="136" y2="52" stroke="#bae6fd" stroke-width="1" stroke-dasharray="2,2"/><line x1="76" y1="52" x2="76" y2="8" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/><text x="76" y="6" text-anchor="middle" font-size="9" fill="#ef4444">H</text><text x="76" y="56" text-anchor="middle" font-size="8" fill="#64748b">R/2</text><text x="136" y="56" text-anchor="middle" font-size="8" fill="#94a3b8">R (max@45°)</text><text x="16" y="50" font-size="8" fill="#0369a1">θ</text><text x="155" y="22" font-size="9" fill="#166534" font-family="Georgia,serif">R=u²sin2θ/g</text><text x="155" y="36" font-size="9" fill="#ef4444" font-family="Georgia,serif">H=u²sin²θ/2g</text></svg>`,
+  F013: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0f9ff" rx="8"/><circle cx="90" cy="28" r="22" stroke="#bae6fd" stroke-width="1.5" fill="none"/><circle cx="90" cy="28" r="4" fill="#0ea5e9"/><circle cx="112" cy="28" r="6" fill="#f472b6" stroke="#db2777" stroke-width="1.5"/><line x1="90" y1="28" x2="112" y2="28" stroke="#64748b" stroke-width="1" stroke-dasharray="2,2"/><text x="101" y="22" font-size="9" fill="#64748b" font-family="Georgia,serif">R</text><path d="M112 16 Q122 22 118 30" stroke="#ef4444" stroke-width="1.5" fill="none"/><text x="125" y="18" font-size="9" fill="#ef4444">v</text><path d="M90 6 Q104 0 112 8" stroke="#7c3aed" stroke-width="1.5" fill="none"/><text x="160" y="24" font-size="10" fill="#0c4a6e" font-family="Georgia,serif">ac = v²/R</text><text x="160" y="38" font-size="10" fill="#7c3aed" font-family="Georgia,serif">= Rω²</text></svg>`,
+  F014: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fdf4ff" rx="8"/><rect x="80" y="18" width="46" height="30" fill="#ede9fe" rx="6" stroke="#7c3aed" stroke-width="2"/><text x="103" y="38" text-anchor="middle" font-size="12" fill="#4c1d95" font-family="Georgia,serif">m</text><path d="M126 33 L162 33" stroke="#ef4444" stroke-width="3" marker-end="url(#arr1)"/><text x="175" y="38" font-size="12" fill="#ef4444" font-family="Georgia,serif">F</text><path d="M140 26 L168 18" stroke="#0369a1" stroke-width="2" marker-end="url(#arr1)"/><text x="172" y="16" font-size="11" fill="#0369a1" font-family="Georgia,serif">a</text><text x="103" y="14" text-anchor="middle" font-size="10" fill="#6b21a8" font-weight="600">F = ma = dp/dt</text></svg>`,
+  F016: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fff7ed" rx="8"/><rect x="16" y="28" width="228" height="16" fill="#fed7aa" rx="3"/><rect x="60" y="14" width="60" height="20" fill="#ddd6fe" rx="4" stroke="#7c3aed" stroke-width="1.5"/><text x="90" y="28" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Georgia,serif">m</text><path d="M120 24 L148 24" stroke="#ef4444" stroke-width="2" marker-end="url(#arr1)"/><path d="M76 24 L48 24" stroke="#16a34a" stroke-width="2" marker-end="url(#arr1)"/><text x="155" y="22" font-size="8" fill="#ef4444">F(applied)</text><text x="30" y="22" font-size="8" fill="#16a34a">f(friction)</text><text x="130" y="52" text-anchor="middle" font-size="9" fill="#92400e" font-family="Georgia,serif">fₛ > fₖ > fᵣ</text></svg>`,
+  F019: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0fdf4" rx="8"/><circle cx="46" cy="30" r="16" fill="#bbf7d0" stroke="#22c55e" stroke-width="2"/><text x="46" y="34" text-anchor="middle" font-size="10" fill="#166534" font-family="Georgia,serif">m</text><path d="M62 30 L96 30" stroke="#0369a1" stroke-width="2" marker-end="url(#arr1)"/><text x="79" y="24" font-size="9" fill="#0369a1" font-family="Georgia,serif">v</text><rect x="106" y="12" width="52" height="20" fill="#bfdbfe" rx="4" stroke="#3b82f6" stroke-width="1.5"/><text x="132" y="26" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Georgia,serif">½mv²</text><text x="164" y="24" font-size="12" fill="#94a3b8">=</text><rect x="172" y="12" width="68" height="20" fill="#fde68a" rx="4" stroke="#f59e0b" stroke-width="1.5"/><text x="206" y="26" text-anchor="middle" font-size="9" fill="#78350f" font-family="Georgia,serif">p²/2m</text></svg>`,
+  F021: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fff7ed" rx="8"/><circle cx="36" cy="28" r="14" fill="#fed7aa" stroke="#f97316" stroke-width="2"/><text x="36" y="32" text-anchor="middle" font-size="8" fill="#7c2d12">m₁</text><path d="M50 28 L74 28" stroke="#ef4444" stroke-width="2" marker-end="url(#arr1)"/><text x="62" y="22" font-size="8" fill="#ef4444">u₁</text><circle cx="90" cy="28" r="11" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/><text x="90" y="32" text-anchor="middle" font-size="8" fill="#4c1d95">m₂</text><text x="116" y="32" font-size="16" fill="#94a3b8">→</text><circle cx="152" cy="28" r="14" fill="#fed7aa" stroke="#f97316" stroke-width="2"/><path d="M166 28 L186 28" stroke="#16a34a" stroke-width="2" marker-end="url(#arr1)"/><text x="176" y="22" font-size="8" fill="#16a34a">v₁</text><circle cx="202" cy="28" r="11" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/><path d="M213 28 L236 28" stroke="#2563eb" stroke-width="2" marker-end="url(#arr1)"/><text x="224" y="22" font-size="8" fill="#2563eb">v₂</text></svg>`,
+  F026: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f5f3ff" rx="8"/><circle cx="30" cy="28" r="20" stroke="#a855f7" stroke-width="2" fill="none"/><circle cx="30" cy="28" r="2" fill="#a855f7"/><text x="30" y="52" text-anchor="middle" font-size="7.5" fill="#7c3aed" font-weight="600">MR² ring</text><ellipse cx="90" cy="32" rx="20" ry="7" stroke="#0369a1" stroke-width="2" fill="#bfdbfe" fill-opacity="0.35"/><ellipse cx="90" cy="28" rx="20" ry="20" stroke="#93c5fd" stroke-width="1" fill="none"/><text x="90" y="52" text-anchor="middle" font-size="7.5" fill="#0369a1" font-weight="600">MR²/2 disc</text><line x1="148" y1="8" x2="148" y2="48" stroke="#16a34a" stroke-width="2.5"/><line x1="130" y1="28" x2="166" y2="28" stroke="#86efac" stroke-width="1" stroke-dasharray="3,2"/><text x="148" y="52" text-anchor="middle" font-size="7.5" fill="#166534" font-weight="600">ML²/12 rod</text><circle cx="218" cy="28" r="18" stroke="#dc2626" stroke-width="2" fill="#fecaca" fill-opacity="0.25"/><circle cx="218" cy="28" r="10" stroke="#dc2626" stroke-width="1" fill="none" stroke-dasharray="3,2"/><text x="218" y="52" text-anchor="middle" font-size="7.5" fill="#dc2626" font-weight="600">2MR²/5 sphere</text></svg>`,
+  F029: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0f9ff" rx="8"/><circle cx="70" cy="30" r="18" fill="#bfdbfe" stroke="#0369a1" stroke-width="2"/><text x="70" y="34" text-anchor="middle" font-size="8" fill="#1e3a8a" font-weight="600">Earth</text><circle cx="70" cy="30" r="34" stroke="#94a3b8" stroke-width="1" fill="none" stroke-dasharray="3,2"/><circle cx="104" cy="30" r="5" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/><path d="M104 22 Q112 14 108 16" stroke="#7c3aed" stroke-width="1.5" fill="none"/><text x="114" y="13" font-size="8" fill="#7c3aed">Vₒ=√gR</text><path d="M70 12 L70 4" stroke="#ef4444" stroke-width="2" marker-end="url(#arr1)"/><text x="74" y="6" font-size="7" fill="#ef4444">Vₑ</text><text x="148" y="22" font-size="9" fill="#0c4a6e" font-family="Georgia,serif">Vₑ=11.2 km/s</text><text x="148" y="34" font-size="9" fill="#7c3aed" font-family="Georgia,serif">Vₒ=7.92 km/s</text><text x="148" y="46" font-size="8" fill="#94a3b8" font-family="Georgia,serif">Vₑ = √2·Vₒ</text></svg>`,
+  F035: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0f9ff" rx="8"/><path d="M16 46 L76 46 L76 22 L184 22 L184 46 L244 46" stroke="#0369a1" stroke-width="2.5" fill="none"/><path d="M76 46 L76 22" stroke="#0369a1" stroke-width="2"/><path d="M184 22 L184 46" stroke="#0369a1" stroke-width="2"/><text x="46" y="40" text-anchor="middle" font-size="8" fill="#0369a1">A₁ (wide)</text><text x="130" y="18" text-anchor="middle" font-size="8" fill="#0369a1">A₂ (narrow)</text><path d="M38 44 L60 44" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arr1)"/><text x="48" y="38" font-size="7" fill="#ef4444">v₁↓</text><path d="M190 34 L218 34" stroke="#16a34a" stroke-width="2" marker-end="url(#arr1)"/><text x="200" y="28" font-size="7" fill="#16a34a">v₂↑</text><text x="130" y="54" text-anchor="middle" font-size="8" fill="#0c4a6e" font-family="Georgia,serif">P+½ρv²+ρgh = const</text></svg>`,
+  F046: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0fdf4" rx="8"/><rect x="16" y="10" width="90" height="36" fill="none" stroke="#22c55e" stroke-width="2" rx="4"/><text x="61" y="28" text-anchor="middle" font-size="10" fill="#166534" font-family="Georgia,serif" font-weight="600">PV = μRT</text><text x="61" y="42" text-anchor="middle" font-size="8" fill="#64748b">Ideal Gas Law</text><circle cx="148" cy="26" r="3" fill="#f97316"/><circle cx="164" cy="18" r="3" fill="#f97316"/><circle cx="176" cy="34" r="3" fill="#f97316"/><circle cx="192" cy="14" r="3" fill="#f97316"/><circle cx="136" cy="38" r="3" fill="#f97316"/><circle cx="208" cy="30" r="3" fill="#f97316"/><circle cx="158" cy="44" r="3" fill="#f97316"/><circle cx="196" cy="44" r="3" fill="#f97316"/><circle cx="220" cy="20" r="3" fill="#f97316"/><path d="M148 26 L138 16" stroke="#94a3b8" stroke-width="1" marker-end="url(#arr1)"/><path d="M164 18 L172 8" stroke="#94a3b8" stroke-width="1" marker-end="url(#arr1)"/><text x="172" y="10" font-size="7" fill="#94a3b8">v_rms</text></svg>`,
+  F047: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fff7ed" rx="8"/><path d="M16 50 C30 50 36 10 48 10 C60 10 66 50 78 50 C90 50 96 8 110 8 C122 8 128 50 240 50" stroke="#f97316" stroke-width="2.5" fill="none"/><line x1="16" y1="50" x2="240" y2="50" stroke="#fde68a" stroke-width="1"/><line x1="110" y1="8" x2="110" y2="50" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="128" y1="12" x2="128" y2="50" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="145" y1="18" x2="145" y2="50" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="3,2"/><text x="110" y="6" text-anchor="middle" font-size="7.5" fill="#ef4444" font-weight="600">vₘₚ</text><text x="128" y="9" text-anchor="middle" font-size="7.5" fill="#7c3aed" font-weight="600">vₐᵥg</text><text x="145" y="14" text-anchor="middle" font-size="7.5" fill="#0369a1" font-weight="600">vᵣₘₛ</text><text x="190" y="42" font-size="8" fill="#92400e">√2 : √(8/π) : √3</text></svg>`,
+  F050: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fdf4ff" rx="8"/><path d="M10 28 Q32 6 54 28 Q76 50 98 28 Q120 6 142 28 Q164 50 186 28 Q208 6 230 28 Q242 20 250 28" stroke="#7c3aed" stroke-width="2.5" fill="none"/><line x1="10" y1="28" x2="250" y2="28" stroke="#ede9fe" stroke-width="1"/><line x1="54" y1="28" x2="54" y2="6" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/><line x1="98" y1="28" x2="98" y2="50" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/><text x="54" y="4" text-anchor="middle" font-size="8" fill="#ef4444">+A</text><text x="98" y="56" text-anchor="middle" font-size="8" fill="#ef4444">−A</text><text x="200" y="16" font-size="9" fill="#4c1d95" font-family="Georgia,serif">x=Acosωt</text><text x="200" y="28" font-size="8" fill="#7c3aed" font-family="Georgia,serif">a=−ω²x</text></svg>`,
+  F051: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f5f3ff" rx="8"/><path d="M16 46 Q54 6 92 46 Q130 46 168 6" stroke="#22c55e" stroke-width="2" fill="none"/><path d="M16 6 Q54 6 92 46 Q130 6 168 6" stroke="#f97316" stroke-width="2" fill="none" stroke-dasharray="4,2"/><line x1="16" y1="26" x2="168" y2="26" stroke="#ede9fe" stroke-width="1"/><text x="185" y="44" font-size="9" fill="#166534" font-weight="600">KE</text><text x="185" y="10" font-size="9" fill="#c2410c" font-weight="600">PE</text><text x="92" y="14" text-anchor="middle" font-size="8" fill="#64748b">E_total = constant</text><text x="32" y="20" font-size="8" fill="#22c55e">max</text><text x="92" y="52" font-size="8" fill="#f97316" text-anchor="middle">max</text></svg>`,
+  F052: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0f9ff" rx="8"/><line x1="54" y1="6" x2="54" y2="16" stroke="#0369a1" stroke-width="2.5"/><path d="M54 16 Q72 46 54 48" stroke="#0369a1" stroke-width="2" fill="none"/><circle cx="54" cy="48" r="6" fill="#f97316" stroke="#ea580c" stroke-width="1.5"/><text x="72" y="48" font-size="8" fill="#64748b" font-family="Georgia,serif">T=2π√(l/g)</text><text x="54" y="10" font-size="7" fill="#94a3b8" text-anchor="middle">pivot</text><rect x="148" y="20" width="32" height="16" fill="#bfdbfe" rx="4" stroke="#0369a1" stroke-width="2"/><line x1="164" y1="6" x2="164" y2="20" stroke="#64748b" stroke-width="2.5"/><line x1="148" y1="13" x2="135" y2="13" stroke="#94a3b8" stroke-width="1.5"/><line x1="148" y1="8" x2="148" y2="18" stroke="#94a3b8" stroke-width="1.5"/><text x="164" y="46" text-anchor="middle" font-size="8" fill="#0369a1" font-family="Georgia,serif">T=2π√(m/k)</text><line x1="118" y1="10" x2="118" y2="46" stroke="#e2e8f0" stroke-width="1"/></svg>`,
+  F053: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#f0f9ff" rx="8"/><path d="M8 28 Q24 8 40 28 Q56 48 72 28 Q88 8 104 28 Q120 48 136 28 Q152 8 168 28 Q184 48 200 28 Q216 8 232 28" stroke="#0369a1" stroke-width="2.5" fill="none"/><line x1="8" y1="28" x2="252" y2="28" stroke="#bfdbfe" stroke-width="1"/><path d="M40 28 L72 28" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/><text x="56" y="22" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Georgia,serif">λ</text><text x="220" y="20" font-size="9" fill="#0c4a6e" font-family="Georgia,serif">v=fλ</text><path d="M248 28 L258 20" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr1)"/><text x="254" y="18" font-size="8" fill="#7c3aed">v</text></svg>`,
+  F055: `<svg class="vis-svg" viewBox="0 0 260 56"><rect width="260" height="56" fill="#fff7ed" rx="8"/><path d="M10 28 Q34 6 58 28 Q82 50 106 28 Q130 6 154 28 Q178 50 202 28 Q220 14 230 28" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/><path d="M10 28 Q34 50 58 28 Q82 6 106 28 Q130 50 154 28 Q178 6 202 28 Q220 42 230 28" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/><path d="M10 28 L230 28" stroke="#f97316" stroke-width="3"/><circle cx="58" cy="28" r="6" fill="#f97316"/><circle cx="106" cy="28" r="6" fill="#f97316"/><circle cx="154" cy="28" r="6" fill="#f97316"/><circle cx="202" cy="28" r="6" fill="#f97316"/><text x="58" y="48" text-anchor="middle" font-size="8" fill="#94a3b8">N</text><text x="106" y="48" text-anchor="middle" font-size="8" fill="#94a3b8">N</text><text x="82" y="10" text-anchor="middle" font-size="8" fill="#f97316" font-weight="600">AN</text><text x="130" y="10" text-anchor="middle" font-size="8" fill="#f97316" font-weight="600">AN</text></svg>`,
 };
+
+function hexToRgb(hex) {
+  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r ? `${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}` : null;
+}
+
+function buildDefaultVisual(f, theme) {
+  const expr = f.expr.split('|')[0].trim();
+  const accentRgb = hexToRgb(theme.accent);
+  const bg = accentRgb ? `rgba(${accentRgb},0.06)` : '#f0f9ff';
+  const tc = theme.accent || '#0369a1';
+  return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${bg};border-radius:8px;padding:4px 10px;font-family:'Crimson Pro',Georgia,serif;font-size:17px;font-weight:600;color:${tc};text-align:center;line-height:1.3">${expr}</div>`;
+}
 
 function openPrintModal() {
   const grid = document.getElementById('print-ch-grid');
   grid.innerHTML = '';
   CHAPTERS.forEach(ch => {
-    const fCount = FORMULAS.filter(f=>f.ch===ch.id).length;
+    const fCount = FORMULAS.filter(f => f.ch === ch.id).length;
     const item = document.createElement('label');
-    item.className = 'print-ch-item';
+    item.className = 'print-ch-item selected';
     item.innerHTML = `
       <input type="checkbox" class="print-ch-cb" data-ch="${ch.id}" checked />
       <div>
         <div class="print-ch-label">${ch.icon} ${ch.name}</div>
         <div class="print-ch-sub">${fCount} formulas</div>
       </div>`;
-    item.addEventListener('change', () => item.classList.toggle('selected', item.querySelector('input').checked));
-    item.classList.add('selected');
+    item.querySelector('input').addEventListener('change', e => {
+      item.classList.toggle('selected', e.target.checked);
+    });
     grid.appendChild(item);
   });
   document.getElementById('print-modal-overlay').classList.add('open');
@@ -1811,138 +1875,225 @@ function closePrintModal(e) {
 }
 
 function selectAllChapters() {
-  document.querySelectorAll('.print-ch-cb').forEach(cb => { cb.checked=true; cb.closest('.print-ch-item').classList.add('selected'); });
+  document.querySelectorAll('.print-ch-cb').forEach(cb => {
+    cb.checked = true;
+    cb.closest('.print-ch-item').classList.add('selected');
+  });
 }
 function selectNoneChapters() {
-  document.querySelectorAll('.print-ch-cb').forEach(cb => { cb.checked=false; cb.closest('.print-ch-item').classList.remove('selected'); });
+  document.querySelectorAll('.print-ch-cb').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.print-ch-item').classList.remove('selected');
+  });
 }
 function selectJEEChapters() {
   selectNoneChapters();
-  const jeeChapters = [...new Set(FORMULAS.filter(f=>f.jee).map(f=>f.ch))];
+  const jeeChapters = [...new Set(FORMULAS.filter(f => f.jee).map(f => f.ch))];
   document.querySelectorAll('.print-ch-cb').forEach(cb => {
     if (jeeChapters.includes(parseInt(cb.dataset.ch))) {
-      cb.checked=true; cb.closest('.print-ch-item').classList.add('selected');
+      cb.checked = true;
+      cb.closest('.print-ch-item').classList.add('selected');
     }
   });
 }
 
 function generatePrintSheet() {
-  const selectedChs = [...document.querySelectorAll('.print-ch-cb:checked')].map(cb=>parseInt(cb.dataset.ch));
+  const selectedChs = [...document.querySelectorAll('.print-ch-cb:checked')]
+    .map(cb => parseInt(cb.dataset.ch));
   if (!selectedChs.length) { showToast('Select at least one chapter!'); return; }
 
   closePrintModal();
-  const container = document.getElementById('print-page-content');
-  container.innerHTML = '';
 
-  selectedChs.forEach((chId, idx) => {
-    const ch = CHAPTERS.find(c=>c.id===chId);
-    const theme = CH_THEMES[(chId-1) % CH_THEMES.length];
-    const fmls = FORMULAS.filter(f=>f.ch===chId);
+  const host = document.getElementById('print-content-host');
+  host.innerHTML = '';
 
-    // ── Cover page ──
+  selectedChs.forEach((chId, chIdx) => {
+    const ch = CHAPTERS.find(c => c.id === chId);
+    const theme = CH_THEMES[(chId - 1) % CH_THEMES.length];
+    const fmls = FORMULAS.filter(f => f.ch === chId);
+
+    // ── Cover page (one A4 wrapper) ──────────────────────────────────────
+    const coverWrapper = document.createElement('div');
+    coverWrapper.className = 'print-page-wrapper';
+
     const cover = document.createElement('div');
     cover.className = 'ch-cover';
-    cover.innerHTML = `
-      <div class="ch-cover-bg" style="background:${theme.bg}"></div>
-      <div class="ch-cover-orb" style="width:200px;height:200px;background:${theme.orb1};top:-60px;right:-40px"></div>
-      <div class="ch-cover-orb" style="width:130px;height:130px;background:${theme.orb2};bottom:20px;left:30px"></div>
-      <div class="ch-cover-icon">${ch.icon}</div>
-      <div class="ch-cover-num">Chapter ${ch.id} · APBIE Physics · IIT-JEE</div>
-      <div class="ch-cover-title">${ch.name}</div>
-      <div class="ch-cover-sub">${fmls.length} Key Formulae · Narayana Academy CDF</div>
-      <div style="position:absolute;bottom:30px;right:40px;z-index:2;opacity:0.4">
-        <svg width="80" height="80" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="30" stroke="${theme.accent}" stroke-width="1.5" fill="none" stroke-dasharray="4,3"/>
-          <circle cx="40" cy="40" r="18" stroke="${theme.accent}" stroke-width="1" fill="none"/>
-          <ellipse cx="40" cy="40" rx="30" ry="10" stroke="${theme.accent}" stroke-width="1" fill="none"/>
-          <circle cx="40" cy="40" r="4" fill="${theme.accent}"/>
-        </svg>
-      </div>
-      <div class="ch-cover-wave"></div>`;
-    container.appendChild(cover);
 
-    // ── Formula grid pages ──
-    const pageDiv = document.createElement('div');
-    pageDiv.className = (idx === selectedChs.length-1) ? 'ch-formulas-last' : 'ch-formulas';
+    // Background gradient
+    const bg = document.createElement('div');
+    bg.className = 'ch-cover-bg';
+    bg.style.background = theme.bg;
+    cover.appendChild(bg);
 
-    const heading = document.createElement('div');
-    heading.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:8mm;';
-    heading.innerHTML = `<span style="font-size:28px">${ch.icon}</span><div><div style="font-size:18px;font-weight:700;color:#1e293b">${ch.name}</div><div style="font-size:11px;color:#94a3b8;margin-top:2px">Chapter ${ch.id} · ${fmls.length} formulae</div></div>`;
-    pageDiv.appendChild(heading);
+    // Decorative orbs
+    const orb1 = document.createElement('div');
+    orb1.className = 'ch-cover-orb';
+    orb1.style.cssText = `width:260px;height:260px;background:${theme.orb1};top:-80px;right:-60px;`;
+    cover.appendChild(orb1);
 
-    const grid = document.createElement('div');
-    grid.className = 'pf-grid';
+    const orb2 = document.createElement('div');
+    orb2.className = 'ch-cover-orb';
+    orb2.style.cssText = `width:180px;height:180px;background:${theme.orb2};bottom:40px;left:-40px;`;
+    cover.appendChild(orb2);
 
-    fmls.forEach(f => {
-      const card = document.createElement('div');
-      card.className = 'pf-card';
+    // Third small orb
+    const orb3 = document.createElement('div');
+    orb3.className = 'ch-cover-orb';
+    orb3.style.cssText = `width:80px;height:80px;background:${theme.accent};top:40%;right:15%;opacity:0.08;`;
+    cover.appendChild(orb3);
 
-      const headerColor = theme.accent.replace('#','');
-      const accentRgb = hexToRgb(theme.accent);
-      const headerBg = accentRgb ? `rgba(${accentRgb},0.08)` : '#f0f9ff';
-      const headerBorder = accentRgb ? `rgba(${accentRgb},0.2)` : '#e2e8f0';
+    // Content
+    const icon = document.createElement('div');
+    icon.className = 'ch-cover-icon';
+    icon.textContent = ch.icon;
+    cover.appendChild(icon);
 
-      const vis = FORMULA_VISUALS[f.id] || buildDefaultVisual(f, theme);
+    const num = document.createElement('div');
+    num.className = 'ch-cover-num';
+    num.style.color = theme.accent;
+    num.textContent = `Chapter ${ch.id}  ·  APBIE Physics  ·  IIT-JEE Preparation`;
+    cover.appendChild(num);
 
-      card.innerHTML = `
-        <div class="pf-card-header" style="background:${headerBg};border-bottom:1px solid ${headerBorder}">
-          <span class="pf-card-id">${f.id}</span>
-          ${f.jee ? '<span class="pf-jee-badge">⭐ JEE Key</span>' : ''}
+    const title = document.createElement('div');
+    title.className = 'ch-cover-title';
+    title.textContent = ch.name;
+    cover.appendChild(title);
+
+    const sub = document.createElement('div');
+    sub.className = 'ch-cover-sub';
+    sub.textContent = `${fmls.length} Key Formulae  ·  Narayana Academy CDF  ·  Charan's Study Sheet`;
+    cover.appendChild(sub);
+
+    // Atom decoration SVG
+    const deco = document.createElement('div');
+    deco.className = 'ch-cover-deco';
+    deco.innerHTML = `<svg width="100" height="100" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="38" stroke="${theme.accent}" stroke-width="1.5" fill="none" stroke-dasharray="5,4" opacity="0.6"/>
+      <circle cx="50" cy="50" r="22" stroke="${theme.accent}" stroke-width="1" fill="none" opacity="0.4"/>
+      <ellipse cx="50" cy="50" rx="38" ry="13" stroke="${theme.accent}" stroke-width="1" fill="none" opacity="0.4"/>
+      <ellipse cx="50" cy="50" rx="38" ry="13" stroke="${theme.accent}" stroke-width="1" fill="none" opacity="0.4" transform="rotate(60 50 50)"/>
+      <ellipse cx="50" cy="50" rx="38" ry="13" stroke="${theme.accent}" stroke-width="1" fill="none" opacity="0.4" transform="rotate(120 50 50)"/>
+      <circle cx="50" cy="50" r="5" fill="${theme.accent}" opacity="0.8"/>
+      <circle cx="88" cy="50" r="4" fill="${theme.accent}" opacity="0.9"/>
+    </svg>`;
+    cover.appendChild(deco);
+
+    // Accent stripe at bottom
+    const stripe = document.createElement('div');
+    stripe.className = 'ch-cover-stripe';
+    stripe.style.background = theme.stripe;
+    cover.appendChild(stripe);
+
+    coverWrapper.appendChild(cover);
+    host.appendChild(coverWrapper);
+
+    // ── Formula cards — split into pages of max 6 cards ───────────────────
+    const cardsPerPage = 6;
+    for (let pageIdx = 0; pageIdx < Math.ceil(fmls.length / cardsPerPage); pageIdx++) {
+      const pageFmls = fmls.slice(pageIdx * cardsPerPage, (pageIdx + 1) * cardsPerPage);
+      const pageWrapper = document.createElement('div');
+      pageWrapper.className = 'print-page-wrapper';
+
+      const formPage = document.createElement('div');
+      formPage.className = 'ch-formulas-page';
+
+      // Header
+      const hdr = document.createElement('div');
+      hdr.className = 'ch-formulas-header';
+      hdr.innerHTML = `
+        <div class="ch-formulas-header-icon">${ch.icon}</div>
+        <div>
+          <div class="ch-formulas-header-title">${ch.name}</div>
+          <div class="ch-formulas-header-sub">Chapter ${ch.id} · Page ${pageIdx + 1} of ${Math.ceil(fmls.length / cardsPerPage)} · ${fmls.length} total formulae</div>
         </div>
-        <div class="pf-card-body">
-          <div class="pf-name">${f.name}</div>
-          <div class="pf-visual">${vis}</div>
-          <div class="pf-expr">${f.expr.replace(/\|/g,' &nbsp;|&nbsp; ')}</div>
-          <div class="pf-notes">${f.notes}</div>
-          <div class="pf-tags">${f.tags.map(t=>`<span class="pf-tag">${t}</span>`).join('')}</div>
-        </div>`;
-      grid.appendChild(card);
-    });
+        <div style="margin-left:auto;font-size:10px;color:#cbd5e1;text-align:right">APBIE Physics<br>IIT-JEE Prep</div>`;
+      formPage.appendChild(hdr);
 
-    pageDiv.appendChild(grid);
+      // Grid
+      const grid = document.createElement('div');
+      grid.className = 'pf-grid';
 
-    const footer = document.createElement('div');
-    footer.className = 'pf-footer';
-    footer.textContent = `APBIE Physics · ${ch.name} · Charan's Study Sheets · Narayana IIT-JEE Academy`;
-    pageDiv.appendChild(footer);
+      pageFmls.forEach(f => {
+        const accentRgb = hexToRgb(theme.accent);
+        const headerBg = accentRgb ? `rgba(${accentRgb},0.07)` : '#f0f9ff';
+        const headerBorder = accentRgb ? `rgba(${accentRgb},0.18)` : '#e2e8f0';
+        const exprBorder = theme.accent;
+        const vis = FORMULA_VISUALS[f.id] || buildDefaultVisual(f, theme);
 
-    container.appendChild(pageDiv);
+        const card = document.createElement('div');
+        card.className = 'pf-card';
+        card.innerHTML = `
+          <div class="pf-card-header" style="background:${headerBg};border-bottom:1px solid ${headerBorder}">
+            <span class="pf-card-id">${f.id}</span>
+            ${f.jee ? '<span class="pf-jee-badge">⭐ JEE Key</span>' : ''}
+          </div>
+          <div class="pf-card-body">
+            <div class="pf-name">${f.name}</div>
+            <div class="pf-visual">${vis}</div>
+            <div class="pf-expr" style="border-left-color:${exprBorder}">${f.expr.replace(/\|/g, ' &nbsp;|&nbsp; ')}</div>
+            <div class="pf-notes">${f.notes}</div>
+            <div class="pf-tags">${f.tags.map(t => `<span class="pf-tag">${t}</span>`).join('')}</div>
+          </div>`;
+        grid.appendChild(card);
+      });
+
+      formPage.appendChild(grid);
+
+      // Footer
+      const footer = document.createElement('div');
+      footer.className = 'ch-page-footer';
+      footer.textContent = `APBIE Physics · ${ch.name} · Charan's Study Sheets · Narayana IIT-JEE Academy · ${new Date().getFullYear()}`;
+      formPage.appendChild(footer);
+
+      pageWrapper.appendChild(formPage);
+      host.appendChild(pageWrapper);
+    }
   });
 
-  // Back cover
-  const back = document.createElement('div');
-  back.className = 'back-cover';
-  back.innerHTML = `
-    <div style="font-size:56px;margin-bottom:16px">⚛️</div>
+  // ── Back cover ──────────────────────────────────────────────────────────
+  const backWrapper = document.createElement('div');
+  backWrapper.className = 'print-page-wrapper';
+  const backCover = document.createElement('div');
+  backCover.className = 'back-cover';
+  const totalFmls = selectedChs.reduce((a,id) => a + FORMULAS.filter(f=>f.ch===id).length, 0);
+  backCover.innerHTML = `
+    <div style="font-size:72px;margin-bottom:20px;filter:drop-shadow(0 0 30px rgba(56,189,248,0.5))">⚛️</div>
     <h3>APBIE — Physics</h3>
-    <p style="margin-bottom:6px">IIT-JEE & Board Exam Preparation</p>
-    <p>Charan · Narayana Academy · ${new Date().getFullYear()}</p>
-    <div style="margin-top:32px;padding:16px 32px;border:1px solid rgba(255,255,255,0.2);border-radius:12px;font-size:11px;opacity:0.5">
-      "Physics is not a religion. If it were, we'd have a much easier time raising money." — Leon Lederman
+    <p>IIT-JEE & Board Exam Preparation<br>
+    ${selectedChs.length} Chapter${selectedChs.length>1?'s':''} · ${totalFmls} Formulae<br>
+    Charan · Narayana Academy · ${new Date().getFullYear()}</p>
+    <div class="back-cover-quote">
+      "An expert is a person who has made all the mistakes that can be made in a very narrow field."<br>
+      — Niels Bohr
+    </div>
+    <div style="position:absolute;bottom:20mm;left:0;right:0;text-align:center;font-size:10px;opacity:0.3">
+      Generated by APBIE Physics App · brdmochi13.github.io/apbie-physics
     </div>`;
-  container.appendChild(back);
+  backWrapper.appendChild(backCover);
+  host.appendChild(backWrapper);
 
-  document.getElementById('print-sheet').classList.add('open');
+  // Show preview
+  document.getElementById('print-preview-overlay').classList.add('open');
+}
+
+function doPrint() {
+  // Move content-host to body for @media print to capture it
+  const host = document.getElementById('print-content-host');
+  host.classList.remove('preview-mode');
+  document.body.appendChild(host);
+  setTimeout(() => {
+    window.print();
+    // Restore after print dialog
+    setTimeout(() => {
+      document.getElementById('print-preview-overlay').appendChild(host);
+      host.classList.add('preview-mode');
+    }, 500);
+  }, 100);
 }
 
 function closePrintSheet() {
-  document.getElementById('print-sheet').classList.remove('open');
+  document.getElementById('print-preview-overlay').classList.remove('open');
 }
-
-function hexToRgb(hex) {
-  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return r ? `${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}` : null;
-}
-
-function buildDefaultVisual(f, theme) {
-  // Generate a clean formula-display visual when no custom SVG exists
-  const expr = f.expr.split('|')[0].trim().slice(0,40);
-  const accentRgb = hexToRgb(theme.accent);
-  const bg = accentRgb ? `rgba(${accentRgb},0.06)` : '#f0f9ff';
-  const textCol = theme.accent || '#0369a1';
-  return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${bg};border-radius:8px;padding:4px 8px;font-family:Georgia,serif;font-size:15px;color:${textCol};text-align:center;line-height:1.35">${expr}</div>`;
-}
-
 </script>
 </body>
 </html>
