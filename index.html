@@ -589,6 +589,15 @@
   }
   @media (min-width: 601px) { .mobile-nav { display: none; } }
 
+  /* ═══ PRINT — FORCE COLOR PRESERVATION ═══ */
+  /* Applied on-screen too so browsers inherit for print */
+  #print-content-host,
+  #print-content-host * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   /* ═══ PRINT MODAL ═══ */
   .print-modal-overlay {
     position: fixed; inset: 0; z-index: 500;
@@ -698,9 +707,15 @@
     padding: 20mm 22mm 16mm;
     position: relative; overflow: hidden;
     background: #0a1628;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .ch-cover-bg {
     position: absolute; inset: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .ch-cover-orb {
     position: absolute; border-radius: 50%; opacity: 0.14;
@@ -764,17 +779,26 @@
   .pf-card-header {
     padding: 7px 12px;
     display: flex; justify-content: space-between; align-items: center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .pf-card-id {
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
     padding: 2px 8px; border-radius: 8px;
     background: rgba(56,189,248,0.12); color: #0369a1;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .pf-jee-badge {
     font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
     padding: 2px 7px; border-radius: 8px;
     background: rgba(244,114,182,0.14); color: #be185d;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .pf-card-body { padding: 2px 12px 10px; }
   .pf-name {
@@ -786,6 +810,9 @@
     border-radius: 8px; margin-bottom: 6px;
     display: flex; align-items: center; justify-content: center;
     overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .pf-expr {
     font-family: 'Crimson Pro', Georgia, serif;
@@ -794,6 +821,9 @@
     padding: 6px 10px; border-radius: 0 6px 6px 0;
     margin-bottom: 6px; line-height: 1.4;
     word-break: break-word;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .pf-notes {
     font-size: 9.5px; color: #475569; line-height: 1.55;
@@ -805,6 +835,9 @@
   .pf-tag {
     font-size: 8px; padding: 1px 6px; border-radius: 6px;
     background: #f1f5f9; color: #64748b; font-weight: 600;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .vis-svg { width: 100%; height: 56px; }
 
@@ -822,6 +855,9 @@
     background: linear-gradient(160deg, #0a1628, #1e3a5f, #0d2040);
     color: #fff; text-align: center; padding: 20mm;
     position: relative; overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   .back-cover h3 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
   .back-cover p { font-size: 13px; opacity: 0.55; line-height: 1.6; }
@@ -835,10 +871,29 @@
 
   /* ═══ PRINT MEDIA — the real deal ═══ */
   @media print {
+    /* Tell the browser to preserve ALL backgrounds, colors, gradients */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
     /* Hide everything except the printable host */
     body > *:not(#print-content-host) { display: none !important; }
     #print-preview-overlay { display: none !important; }
     .ps-topbar { display: none !important; }
+
+    /* Page setup — A4, no margins (we handle padding in CSS) */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+    }
 
     /* Make the host visible and full-width */
     #print-content-host {
@@ -846,6 +901,7 @@
       position: static !important;
       overflow: visible !important;
       padding: 0 !important;
+      width: 100% !important;
     }
 
     /* Each wrapper is one A4 page */
@@ -856,18 +912,79 @@
       border-radius: 0 !important;
       page-break-after: always;
       break-after: page;
+      overflow: hidden;
     }
     .print-page-wrapper:last-child {
       page-break-after: auto;
       break-after: auto;
     }
 
-    /* Covers fill the page */
-    .ch-cover { height: 100vh; }
-    .back-cover { height: 100vh; }
+    /* Covers — force full page height and preserve gradients */
+    .ch-cover {
+      height: 100vh !important;
+      min-height: unset !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .ch-cover-bg {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .ch-cover-orb {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .ch-cover-stripe {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Back cover */
+    .back-cover {
+      height: 100vh !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Formula cards — preserve accent colors */
+    .pf-card { border: 1.5px solid #e2e8f0 !important; }
+    .pf-card-header {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .pf-card-id {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .pf-jee-badge {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .pf-expr {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .pf-visual {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .pf-tag {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* SVGs print at full color */
+    svg {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
 
     /* Formula pages flow naturally */
-    .ch-formulas-page { min-height: auto; }
+    .ch-formulas-page {
+      min-height: auto;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
   }
 
 </style>
