@@ -22,10 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Wrangler
+        run: npm install --save-dev wrangler@3
       - name: Deploy to Cloudflare Pages
-        run: |
-          npm install -g wrangler
-          npx wrangler pages deploy . --project-name=apbie-physics --branch=main
+        run: npx wrangler pages deploy . --project-name=apbie-physics --branch=main --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
